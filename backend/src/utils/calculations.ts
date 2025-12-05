@@ -3,6 +3,7 @@ import { Profile, MonthlyCalculation } from '../types';
 export interface MonthlyIncome {
   month: string;
   income: number;
+  gigDays: number; // Number of days with gigs (for ALG de-registration)
 }
 
 export function calculateMonthlyContributions(
@@ -11,7 +12,7 @@ export function calculateMonthlyContributions(
 ): MonthlyCalculation[] {
   const calculations: MonthlyCalculation[] = [];
 
-  for (const { month, income } of monthlyIncome) {
+  for (const { month, income, gigDays } of monthlyIncome) {
     let calculation: MonthlyCalculation = {
       month,
       gross_income: income,
@@ -26,7 +27,7 @@ export function calculateMonthlyContributions(
     // Calculate based on simulation mode
     switch (profile.simulation_mode) {
       case 'alg':
-        calculation = calculateALGMode(calculation, income, profile);
+        calculation = calculateALGMode(calculation, income, profile, month, gigDays);
         break;
       case 'kleinunternehmer':
         calculation = calculateKleinunternehmerMode(calculation, income, profile);
@@ -45,29 +46,81 @@ export function calculateMonthlyContributions(
 function calculateALGMode(
   calc: MonthlyCalculation,
   monthlyIncome: number,
-  profile: Profile
+  profile: Profile,
+  month: string,
+  gigDays: number
 ): MonthlyCalculation {
-  const ALG_EXEMPT_AMOUNT = 165;
   const monthlyAlg = profile.monthly_alg_amount || 0;
 
-  // Calculate excess income over €165
-  const excessIncome = Math.max(0, monthlyIncome - ALG_EXEMPT_AMOUNT);
+  // Get number of days in the month
+  const [year, monthNum] = month.split('-').map(Number);
+  const daysInMonth = new Date(year, monthNum, 0).getDate();
 
-  // ALG is reduced by excess income
-  const algDeduction = Math.min(excessIncome, monthlyAlg);
-  const algReceived = monthlyAlg - algDeduction;
+  if (gigDays === 0) {
+    // No gigs this month - simple ALG calculation
+    // Can earn up to €165 without deduction (assuming small work <15h/week)
+    const ALG_EXEMPT_AMOUNT = 165;
+    const excessIncome = Math.max(0, monthlyIncome - ALG_EXEMPT_AMOUNT);
+    const algDeduction = Math.min(excessIncome, monthlyAlg);
+    const algReceived = monthlyAlg - algDeduction;
 
-  // While on ALG, health insurance is covered by Arbeitsagentur
-  // No pension or nursing care contributions while on ALG
-  calc.alg_received = algReceived;
-  calc.alg_deduction = algDeduction;
-  calc.health_insurance = 0;
-  calc.pension = 0;
-  calc.nursing_care = 0;
-  calc.income_tax = 0;
+    calc.alg_received = algReceived;
+    calc.alg_deduction = algDeduction;
+    calc.health_insurance = 0;
+    calc.pension = 0;
+    calc.nursing_care = 0;
+    calc.income_tax = 0;
+    calc.net_income = monthlyIncome + algReceived;
+    calc.total_contributions = 0;
+  } else {
+    // De-registration for gig days
+    const registeredDays = daysInMonth - gigDays;
+    const proratedAlg = (monthlyAlg * registeredDays) / daysInMonth;
 
-  calc.net_income = monthlyIncome + algReceived;
-  calc.total_contributions = 0;
+    // Calculate social contributions for gig days only (prorated)
+    const gigDayRatio = gigDays / daysInMonth;
+
+    // Minimum health insurance per day (2025: ~€213/month ÷ 30 days = €7.10/day)
+    const MINIMUM_MONTHLY_HEALTH_INSURANCE = 213;
+    const minimumDailyHealthInsurance = MINIMUM_MONTHLY_HEALTH_INSURANCE / 30;
+    const minimumHealthInsuranceForGigDays = minimumDailyHealthInsurance * gigDays;
+
+    if (profile.ksk_eligible) {
+      // KSK covers 50% of contributions
+      const calculatedHealth = (monthlyIncome * (profile.health_insurance_rate / 100) * gigDayRatio) / 2;
+      calc.health_insurance = Math.max(calculatedHealth, minimumHealthInsuranceForGigDays / 2);
+      calc.pension = (monthlyIncome * (profile.pension_rate / 100) * gigDayRatio) / 2;
+      calc.nursing_care = (monthlyIncome * (profile.nursing_care_rate / 100) * gigDayRatio) / 2;
+    } else {
+      // Full contributions for gig days with minimum health insurance
+      const calculatedHealth = monthlyIncome * (profile.health_insurance_rate / 100) * gigDayRatio;
+      calc.health_insurance = Math.max(calculatedHealth, minimumHealthInsuranceForGigDays);
+      calc.pension = monthlyIncome * (profile.pension_rate / 100) * gigDayRatio;
+      calc.nursing_care = monthlyIncome * (profile.nursing_care_rate / 100) * gigDayRatio;
+    }
+
+    // Income tax (simplified - prorated for gig days)
+    const annualIncome = monthlyIncome * 12;
+    const taxableIncome = Math.max(0, annualIncome - profile.tax_free_allowance);
+    let annualTax = 0;
+
+    if (taxableIncome > 0 && taxableIncome <= 11310) {
+      annualTax = taxableIncome * 0.14;
+    } else if (taxableIncome <= 63515) {
+      annualTax = 11310 * 0.14 + (taxableIncome - 11310) * 0.24;
+    } else if (taxableIncome <= 277825) {
+      annualTax = 11310 * 0.14 + (63515 - 11310) * 0.24 + (taxableIncome - 63515) * 0.42;
+    } else {
+      annualTax = 11310 * 0.14 + (63515 - 11310) * 0.24 + (277825 - 63515) * 0.42 + (taxableIncome - 277825) * 0.45;
+    }
+
+    calc.income_tax = (annualTax / 12) * gigDayRatio;
+
+    calc.alg_received = proratedAlg;
+    calc.alg_deduction = 0;
+    calc.total_contributions = calc.health_insurance + calc.pension + calc.nursing_care + calc.income_tax;
+    calc.net_income = monthlyIncome - calc.total_contributions + proratedAlg;
+  }
 
   return calc;
 }

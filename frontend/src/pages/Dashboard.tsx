@@ -3,6 +3,7 @@ import { User, Profile, Gig, CalculationResponse } from '../types';
 import Calendar from '../components/Calendar';
 import Statistics from '../components/Statistics';
 import Settings from '../components/Settings';
+import Documentation from '../components/Documentation';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -16,7 +17,7 @@ function Dashboard({ user, onBack }: DashboardProps) {
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [calculations, setCalculations] = useState<CalculationResponse | null>(null);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [activeTab, setActiveTab] = useState<'calendar' | 'stats' | 'settings'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'stats' | 'settings' | 'docs'>('calendar');
 
   useEffect(() => {
     fetchProfile();
@@ -173,6 +174,17 @@ function Dashboard({ user, onBack }: DashboardProps) {
           >
             Settings
           </button>
+          <button
+            className="btn"
+            style={{
+              backgroundColor: activeTab === 'docs' ? '#eff6ff' : 'transparent',
+              color: activeTab === 'docs' ? '#2563eb' : '#6b7280',
+              borderRadius: '4px 4px 0 0',
+            }}
+            onClick={() => setActiveTab('docs')}
+          >
+            Documentation
+          </button>
         </div>
 
         {activeTab === 'calendar' && (
@@ -199,6 +211,10 @@ function Dashboard({ user, onBack }: DashboardProps) {
             profile={profile}
             onUpdateProfile={updateProfile}
           />
+        )}
+
+        {activeTab === 'docs' && (
+          <Documentation />
         )}
       </div>
     </div>

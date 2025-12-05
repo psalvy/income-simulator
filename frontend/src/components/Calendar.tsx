@@ -101,11 +101,13 @@ function Calendar({ userId, gigs, year, onYearChange, onCreateGig, onUpdateGig, 
 
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(year, selectedMonth);
-    const firstDay = getFirstDayOfMonth(year, selectedMonth);
+    const firstDayRaw = getFirstDayOfMonth(year, selectedMonth);
+    // Adjust for Monday start (0=Monday, 6=Sunday)
+    const firstDay = (firstDayRaw + 6) % 7;
     const days = [];
 
-    // Day headers
-    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    // Day headers (Monday first)
+    const dayHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     days.push(...dayHeaders.map(day => (
       <div key={`header-${day}`} style={{ textAlign: 'center', fontWeight: 'bold', padding: '8px' }}>
         {day}
@@ -129,11 +131,24 @@ function Calendar({ userId, gigs, year, onYearChange, onCreateGig, onUpdateGig, 
           className={`calendar-day ${dayGigs.length > 0 ? 'has-gig' : ''}`}
           onClick={() => handleDateClick(day)}
         >
-          <div style={{ fontSize: '12px', fontWeight: 'bold' }}>{day}</div>
+          <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>{day}</div>
           {dayGigs.length > 0 && (
-            <div style={{ fontSize: '10px', marginTop: '2px' }}>
-              {dayGigs.length} gig{dayGigs.length > 1 ? 's' : ''}<br />
-              €{totalIncome}
+            <div style={{ fontSize: '9px', lineHeight: '1.2' }}>
+              {dayGigs.slice(0, 2).map((gig, idx) => (
+                <div key={gig.id} style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  marginBottom: '1px'
+                }}>
+                  <strong>{gig.title}</strong> €{gig.price}
+                </div>
+              ))}
+              {dayGigs.length > 2 && (
+                <div style={{ fontSize: '8px', color: '#6b7280' }}>
+                  +{dayGigs.length - 2} more
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -145,6 +160,8 @@ function Calendar({ userId, gigs, year, onYearChange, onCreateGig, onUpdateGig, 
 
   const monthGigs = gigs.filter(g => g.date.startsWith(`${year}-${String(selectedMonth + 1).padStart(2, '0')}`));
   const monthIncome = monthGigs.reduce((sum, g) => sum + g.price, 0);
+  const uniqueGigDays = new Set(monthGigs.map(g => g.date)).size;
+  const avgPerGig = monthGigs.length > 0 ? monthIncome / monthGigs.length : 0;
 
   return (
     <div>
@@ -174,8 +191,32 @@ function Calendar({ userId, gigs, year, onYearChange, onCreateGig, onUpdateGig, 
         </button>
       </div>
 
-      <div style={{ marginBottom: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '4px' }}>
-        <strong>This Month:</strong> {monthGigs.length} gigs, €{monthIncome.toFixed(2)} income
+      <div style={{
+        marginBottom: '16px',
+        padding: '16px',
+        background: '#0f172a',
+        borderRadius: '6px',
+        border: '1px solid #334155',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '16px'
+      }}>
+        <div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Total Gigs</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>{monthGigs.length}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Gig Days</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>{uniqueGigDays}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Total Income</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>€{monthIncome.toFixed(2)}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Avg per Gig</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#8b5cf6' }}>€{avgPerGig.toFixed(2)}</div>
+        </div>
       </div>
 
       <div className="calendar-grid">

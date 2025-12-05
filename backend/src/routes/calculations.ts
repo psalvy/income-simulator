@@ -31,9 +31,13 @@ router.get('/user/:userId/year/:year', (req: Request, res: Response) => {
       const monthGigs = gigs.filter(g => g.date.startsWith(monthStr));
       const income = monthGigs.reduce((sum, g) => sum + g.price, 0);
 
+      // Count unique days with gigs (for ALG de-registration)
+      const uniqueGigDays = new Set(monthGigs.map(g => g.date)).size;
+
       monthlyIncome.push({
         month: monthStr,
         income: income,
+        gigDays: uniqueGigDays,
       });
     }
 
