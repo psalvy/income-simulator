@@ -205,6 +205,50 @@ function Documentation() {
         </ul>
       </div>
 
+      <div className="card" style={{ marginBottom: '20px' }}>
+        <h3 style={{ marginBottom: '16px' }}>5. Minijob (Geringfügige Beschäftigung)</h3>
+
+        <h4 style={{ marginTop: '12px', marginBottom: '8px', color: '#3b82f6' }}>What is a Minijob?</h4>
+        <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '12px' }}>
+          A minijob is a part-time employment relationship with special tax treatment in Germany.
+          It allows employees to earn extra income without paying income tax or standard social contributions.
+        </p>
+
+        <h4 style={{ marginTop: '12px', marginBottom: '8px', color: '#3b82f6' }}>Eligibility (2025)</h4>
+        <ul style={{ marginLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}>
+          <li>Maximum earnings: €538/month (previously €520 in 2024)</li>
+          <li>Can be combined with freelance work, ALG, or other income</li>
+          <li>Employer pays flat-rate contributions (~30% to social security)</li>
+          <li>Employee pays no income tax and no social contributions</li>
+        </ul>
+
+        <h4 style={{ marginTop: '12px', marginBottom: '8px', color: '#3b82f6' }}>How It Works in This Calculator</h4>
+        <div style={{ background: '#0f172a', padding: '12px', borderRadius: '4px', marginTop: '8px', border: '1px solid #334155' }}>
+          <ul style={{ marginLeft: '20px', fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.8', color: '#cbd5e1' }}>
+            <li>Minijob income is added to your monthly net income</li>
+            <li>No social contributions deducted from minijob income</li>
+            <li>No income tax on minijob income (up to €538/month limit)</li>
+            <li>Shows separately in statistics for transparency</li>
+          </ul>
+          <p style={{ fontFamily: 'monospace', fontSize: '13px', marginTop: '12px', color: '#f1f5f9' }}>
+            <strong>Example:</strong> €300/month minijob + €1,500 freelance income
+          </p>
+          <ul style={{ marginLeft: '20px', fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.8', color: '#cbd5e1' }}>
+            <li>Freelance income: €1,500 - contributions = varies</li>
+            <li>Minijob income: €300 (no deductions)</li>
+            <li>Total net: Freelance net + €300</li>
+          </ul>
+        </div>
+
+        <p style={{ marginTop: '12px', fontSize: '14px', color: '#6b7280' }}>
+          <strong>Sources:</strong>
+        </p>
+        <ul style={{ marginLeft: '20px', fontSize: '14px', color: '#2563eb' }}>
+          <li><a href="https://www.minijob-zentrale.de/EN/0_Home/01_home.html" target="_blank" rel="noopener">Official Minijob-Zentrale (English)</a></li>
+          <li><a href="https://allaboutberlin.com/guides/minijob" target="_blank" rel="noopener">All About Berlin - Minijob Guide</a></li>
+        </ul>
+      </div>
+
       <div className="card" style={{ background: '#fef3c7' }}>
         <h3 style={{ marginBottom: '16px', color: '#92400e' }}>Important Disclaimers</h3>
         <ul style={{ marginLeft: '20px', color: '#92400e', lineHeight: '1.8' }}>

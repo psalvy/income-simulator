@@ -64,6 +64,15 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_gigs_date ON gigs(date);
   `);
 
+  // Migration: Add minijob_monthly_income column if it doesn't exist
+  const columns = db.prepare("PRAGMA table_info(profiles)").all() as any[];
+  const hasMinijobColumn = columns.some((col: any) => col.name === 'minijob_monthly_income');
+
+  if (!hasMinijobColumn) {
+    db.exec(`ALTER TABLE profiles ADD COLUMN minijob_monthly_income REAL`);
+    console.log('Added minijob_monthly_income column to profiles table');
+  }
+
   console.log('Database initialized successfully');
 }
 

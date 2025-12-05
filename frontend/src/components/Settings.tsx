@@ -11,6 +11,7 @@ function Settings({ profile, onUpdateProfile }: SettingsProps) {
     simulation_mode: profile.simulation_mode,
     ksk_eligible: profile.ksk_eligible,
     monthly_alg_amount: profile.monthly_alg_amount?.toString() || '',
+    minijob_monthly_income: profile.minijob_monthly_income?.toString() || '',
     gruendungszuschuss_start_date: profile.gruendungszuschuss_start_date || '',
     gruendungszuschuss_phase: profile.gruendungszuschuss_phase || 1,
     health_insurance_rate: profile.health_insurance_rate.toString(),
@@ -24,6 +25,7 @@ function Settings({ profile, onUpdateProfile }: SettingsProps) {
       simulation_mode: profile.simulation_mode,
       ksk_eligible: profile.ksk_eligible,
       monthly_alg_amount: profile.monthly_alg_amount?.toString() || '',
+      minijob_monthly_income: profile.minijob_monthly_income?.toString() || '',
       gruendungszuschuss_start_date: profile.gruendungszuschuss_start_date || '',
       gruendungszuschuss_phase: profile.gruendungszuschuss_phase || 1,
       health_insurance_rate: profile.health_insurance_rate.toString(),
@@ -47,6 +49,10 @@ function Settings({ profile, onUpdateProfile }: SettingsProps) {
 
     if (formData.monthly_alg_amount) {
       updates.monthly_alg_amount = parseFloat(formData.monthly_alg_amount);
+    }
+
+    if (formData.minijob_monthly_income) {
+      updates.minijob_monthly_income = parseFloat(formData.minijob_monthly_income);
     }
 
     if (formData.gruendungszuschuss_start_date) {
@@ -201,6 +207,27 @@ function Settings({ profile, onUpdateProfile }: SettingsProps) {
             />
             <small style={{ color: '#6b7280', fontSize: '12px' }}>
               2025 Grundfreibetrag: €12,096 per person
+            </small>
+          </div>
+        </div>
+
+        <div className="card" style={{ marginBottom: '20px' }}>
+          <h3 style={{ marginBottom: '16px' }}>Minijob Income</h3>
+
+          <div className="form-group">
+            <label>Monthly Minijob Income (€)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="538"
+              placeholder="e.g., 520"
+              value={formData.minijob_monthly_income}
+              onChange={(e) => setFormData({ ...formData, minijob_monthly_income: e.target.value })}
+            />
+            <small style={{ color: '#6b7280', fontSize: '12px' }}>
+              Minijob income (up to €538/month in 2025) is tax-free and has no employee social contributions.
+              This income will be added to your net income each month.
             </small>
           </div>
         </div>

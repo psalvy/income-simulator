@@ -13,14 +13,17 @@ export function calculateMonthlyContributions(
   const calculations: MonthlyCalculation[] = [];
 
   for (const { month, income, gigDays } of monthlyIncome) {
+    const minijobIncome = profile.minijob_monthly_income || 0;
+
     let calculation: MonthlyCalculation = {
       month,
       gross_income: income,
+      minijob_income: minijobIncome,
       health_insurance: 0,
       pension: 0,
       nursing_care: 0,
       income_tax: 0,
-      net_income: income,
+      net_income: income + minijobIncome,
       total_contributions: 0,
     };
 
@@ -70,7 +73,7 @@ function calculateALGMode(
     calc.pension = 0;
     calc.nursing_care = 0;
     calc.income_tax = 0;
-    calc.net_income = monthlyIncome + algReceived;
+    calc.net_income = monthlyIncome + algReceived + (profile.minijob_monthly_income || 0);
     calc.total_contributions = 0;
   } else {
     // De-registration for gig days
@@ -119,7 +122,7 @@ function calculateALGMode(
     calc.alg_received = proratedAlg;
     calc.alg_deduction = 0;
     calc.total_contributions = calc.health_insurance + calc.pension + calc.nursing_care + calc.income_tax;
-    calc.net_income = monthlyIncome - calc.total_contributions + proratedAlg;
+    calc.net_income = monthlyIncome - calc.total_contributions + proratedAlg + (profile.minijob_monthly_income || 0);
   }
 
   return calc;
@@ -162,7 +165,7 @@ function calculateKleinunternehmerMode(
   calc.income_tax = annualTax / 12;
 
   calc.total_contributions = calc.health_insurance + calc.pension + calc.nursing_care + calc.income_tax;
-  calc.net_income = monthlyIncome - calc.total_contributions;
+  calc.net_income = monthlyIncome - calc.total_contributions + (profile.minijob_monthly_income || 0);
 
   return calc;
 }
@@ -205,6 +208,7 @@ function calculateGruendungszuschussMode(
 export function calculateAnnualSummary(monthly: MonthlyCalculation[]) {
   return monthly.reduce((acc, month) => ({
     total_gross_income: acc.total_gross_income + month.gross_income,
+    total_minijob_income: acc.total_minijob_income + (month.minijob_income || 0),
     total_health_insurance: acc.total_health_insurance + month.health_insurance,
     total_pension: acc.total_pension + month.pension,
     total_nursing_care: acc.total_nursing_care + month.nursing_care,
@@ -215,6 +219,7 @@ export function calculateAnnualSummary(monthly: MonthlyCalculation[]) {
     total_contributions: acc.total_contributions + month.total_contributions,
   }), {
     total_gross_income: 0,
+    total_minijob_income: 0,
     total_health_insurance: 0,
     total_pension: 0,
     total_nursing_care: 0,

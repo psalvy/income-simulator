@@ -27,6 +27,12 @@ function Statistics({ calculations, year }: StatisticsProps) {
           <h3>Total Gross Income</h3>
           <p>{formatCurrency(annual.total_gross_income)}</p>
         </div>
+        {annual.total_minijob_income > 0 && (
+          <div className="stat-card" style={{ background: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' }}>
+            <h3>Minijob Income</h3>
+            <p>{formatCurrency(annual.total_minijob_income)}</p>
+          </div>
+        )}
         <div className="stat-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
           <h3>Total Net Income</h3>
           <p>{formatCurrency(annual.total_net_income)}</p>
@@ -70,6 +76,7 @@ function Statistics({ calculations, year }: StatisticsProps) {
               <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
                 <th style={{ textAlign: 'left', padding: '12px' }}>Month</th>
                 <th style={{ textAlign: 'right', padding: '12px' }}>Gross</th>
+                {annual.total_minijob_income > 0 && <th style={{ textAlign: 'right', padding: '12px' }}>Minijob</th>}
                 <th style={{ textAlign: 'right', padding: '12px' }}>Health</th>
                 <th style={{ textAlign: 'right', padding: '12px' }}>Pension</th>
                 <th style={{ textAlign: 'right', padding: '12px' }}>Tax</th>
@@ -83,6 +90,11 @@ function Statistics({ calculations, year }: StatisticsProps) {
                 <tr key={month.month} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={{ padding: '12px' }}>{formatMonth(month.month)}</td>
                   <td style={{ textAlign: 'right', padding: '12px' }}>{formatCurrency(month.gross_income)}</td>
+                  {annual.total_minijob_income > 0 && (
+                    <td style={{ textAlign: 'right', padding: '12px', color: '#16a34a' }}>
+                      +{formatCurrency(month.minijob_income || 0)}
+                    </td>
+                  )}
                   <td style={{ textAlign: 'right', padding: '12px', color: '#dc2626' }}>
                     -{formatCurrency(month.health_insurance)}
                   </td>
@@ -112,6 +124,11 @@ function Statistics({ calculations, year }: StatisticsProps) {
               <tr style={{ borderTop: '2px solid #1f2937', fontWeight: 'bold' }}>
                 <td style={{ padding: '12px' }}>Total</td>
                 <td style={{ textAlign: 'right', padding: '12px' }}>{formatCurrency(annual.total_gross_income)}</td>
+                {annual.total_minijob_income > 0 && (
+                  <td style={{ textAlign: 'right', padding: '12px', color: '#16a34a' }}>
+                    +{formatCurrency(annual.total_minijob_income)}
+                  </td>
+                )}
                 <td style={{ textAlign: 'right', padding: '12px', color: '#dc2626' }}>
                   -{formatCurrency(annual.total_health_insurance)}
                 </td>

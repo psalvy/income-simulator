@@ -10,6 +10,7 @@ export interface Profile {
   simulation_mode: 'alg' | 'kleinunternehmer' | 'gruendungszuschuss';
   annual_income_estimate: number;
   monthly_alg_amount?: number;
+  minijob_monthly_income?: number;
   gruendungszuschuss_start_date?: string;
   gruendungszuschuss_phase?: 1 | 2;
   ksk_eligible: boolean;
@@ -33,6 +34,7 @@ export interface Gig {
 export interface MonthlyCalculation {
   month: string;
   gross_income: number;
+  minijob_income?: number;
   health_insurance: number;
   pension: number;
   nursing_care: number;

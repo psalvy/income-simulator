@@ -135,9 +135,30 @@ function Dashboard({ user, onBack }: DashboardProps) {
                      'Gründungszuschuss'}
             </p>
           </div>
-          <button className="btn btn-secondary" onClick={onBack}>
-            Change Profile
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setCurrentYear(currentYear - 1)}
+                style={{ padding: '8px 12px' }}
+              >
+                &lt;
+              </button>
+              <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '60px', textAlign: 'center' }}>
+                {currentYear}
+              </span>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setCurrentYear(currentYear + 1)}
+                style={{ padding: '8px 12px' }}
+              >
+                &gt;
+              </button>
+            </div>
+            <button className="btn btn-secondary" onClick={onBack}>
+              Change Profile
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e5e7eb' }}>
